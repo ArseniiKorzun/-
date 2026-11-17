@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using WebApplication1.Context;
 using WebApplication1.Models;
 
@@ -20,13 +21,10 @@ namespace WebApplication1.Repository
 
         public void Delete(Movie movie) => _context.Movies.Remove(movie);
 
-        public List<Movie> GetAll() => _context.Movies.ToList();
+        public Task<List<Movie>> GetAllAsync() => _context.Movies.ToListAsync();
 
-        public Movie GetById(int id) => _context.Movies.FirstOrDefault(m => m.Id == id);
+        public Task<Movie> GetByIdAsync(int id) => _context.Movies.FirstOrDefaultAsync(m => m.Id == id);
 
-        public void SaveChanges()
-        {
-            _context.SaveChanges();
-        }
+        public Task SaveChangesAsync() => _context.SaveChangesAsync();
     }
 }

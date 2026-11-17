@@ -13,7 +13,7 @@ export default function MovieCard({ movie, onRemove }) {
         <span className="runtime-badge">{movie.runtime} min</span>
       </div>
       <div className="movie-body">
-        <h3 className="movie-title">{movie.title}</h3>
+        <h3 className="movie-title"><a href={`#/movies/${movie.id}`}>{movie.title}</a></h3>
         <p className="movie-meta">by {movie.director}</p>
         {movie.description && <p className="movie-description">{movie.description}</p>}
       </div>

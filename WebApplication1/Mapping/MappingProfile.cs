@@ -12,11 +12,13 @@ namespace WebApplication1.Mapping
 
             CreateMap<CreateMovieRequest, Movie>()
                 .ForMember(d => d.Id, o => o.Ignore())
-                .ForMember(d => d.Comments, o => o.Ignore());
+                .ForMember(d => d.Comments, o => o.Ignore())
+                .ForMember(d => d.Sessions, o => o.Ignore());
 
             CreateMap<UpdateMovieRequest, Movie>()
                 .ForMember(d => d.Id, o => o.Ignore())
-                .ForMember(d => d.Comments, o => o.Ignore());
+                .ForMember(d => d.Comments, o => o.Ignore())
+                .ForMember(d => d.Sessions, o => o.Ignore());
 
             CreateMap<MovieComment, MovieCommentResponse>();
 
@@ -31,6 +33,18 @@ namespace WebApplication1.Mapping
                 .ForMember(d => d.MovieId, o => o.Ignore())
                 .ForMember(d => d.Movie, o => o.Ignore())
                 .ForMember(d => d.CreatedAt, o => o.Ignore());
+
+            CreateMap<MovieSession, MovieSessionResponse>()
+                .ForMember(d => d.MovieTitle, o => o.MapFrom(s => s.Movie.Title))
+                .ForMember(d => d.StartsAt, o => o.MapFrom(s => DateTime.SpecifyKind(s.StartsAt, DateTimeKind.Utc)));
+
+            CreateMap<CreateMovieSessionRequest, MovieSession>()
+                .ForMember(d => d.Id, o => o.Ignore())
+                .ForMember(d => d.Movie, o => o.Ignore());
+
+            CreateMap<UpdateMovieSessionRequest, MovieSession>()
+                .ForMember(d => d.Id, o => o.Ignore())
+                .ForMember(d => d.Movie, o => o.Ignore());
 
             CreateMap<User, UserResponse>();
 

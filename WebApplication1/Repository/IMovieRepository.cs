@@ -4,11 +4,11 @@ namespace WebApplication1.Repository
 {
     public interface IMovieRepository
     {
-        List<Movie> GetAll();
-        Movie GetById(int id);
+        Task<List<Movie>> GetAllAsync();
+        Task<Movie> GetByIdAsync(int id);
         void Add(Movie movie);
         void Update(Movie movie);
         void Delete(Movie movie);
-        void SaveChanges();
+        Task SaveChangesAsync();
     }
 }

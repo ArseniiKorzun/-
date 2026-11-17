@@ -5,26 +5,26 @@ namespace WebApplication1.Services
 {
     public class MovieService(IMovieRepository _movieRepository)
     {
-        public List<Movie> GetAll() => _movieRepository.GetAll();
+        public Task<List<Movie>> GetAllAsync() => _movieRepository.GetAllAsync();
 
-        public Movie GetById(int id) => _movieRepository.GetById(id);
+        public Task<Movie> GetByIdAsync(int id) => _movieRepository.GetByIdAsync(id);
 
-        public void Add(Movie movie)
+        public async Task AddAsync(Movie movie)
         {
             _movieRepository.Add(movie);
-            _movieRepository.SaveChanges();
+            await _movieRepository.SaveChangesAsync();
         }
 
-        public void Update(Movie movie)
+        public async Task UpdateAsync(Movie movie)
         {
             _movieRepository.Update(movie);
-            _movieRepository.SaveChanges();
+            await _movieRepository.SaveChangesAsync();
         }
 
-        public void Delete(Movie movie)
+        public async Task DeleteAsync(Movie movie)
         {
             _movieRepository.Delete(movie);
-            _movieRepository.SaveChanges();
+            await _movieRepository.SaveChangesAsync();
         }
     }
 }

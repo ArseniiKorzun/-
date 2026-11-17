@@ -5,28 +5,28 @@ namespace WebApplication1.Services
 {
     public class MovieCommentService(IMovieCommentRepository _commentRepository, MovieService _movieService)
     {
-        public bool MovieExists(int movieId) => _movieService.GetById(movieId) != null;
+        public async Task<bool> MovieExistsAsync(int movieId) => await _movieService.GetByIdAsync(movieId) != null;
 
-        public List<MovieComment> GetByMovieId(int movieId) => _commentRepository.GetByMovieId(movieId);
+        public Task<List<MovieComment>> GetByMovieIdAsync(int movieId) => _commentRepository.GetByMovieIdAsync(movieId);
 
-        public MovieComment GetById(int id) => _commentRepository.GetById(id);
+        public Task<MovieComment> GetByIdAsync(int id) => _commentRepository.GetByIdAsync(id);
 
-        public void Add(MovieComment comment)
+        public async Task AddAsync(MovieComment comment)
         {
             _commentRepository.Add(comment);
-            _commentRepository.SaveChanges();
+            await _commentRepository.SaveChangesAsync();
         }
 
-        public void Update(MovieComment comment)
+        public async Task UpdateAsync(MovieComment comment)
         {
             _commentRepository.Update(comment);
-            _commentRepository.SaveChanges();
+            await _commentRepository.SaveChangesAsync();
         }
 
-        public void Delete(MovieComment comment)
+        public async Task DeleteAsync(MovieComment comment)
         {
             _commentRepository.Delete(comment);
-            _commentRepository.SaveChanges();
+            await _commentRepository.SaveChangesAsync();
         }
     }
 }

@@ -149,3 +149,42 @@ RuleFor(x => x.Title)
 | ERR9 | GET коментарів неіснуючого фільму | 404 | 404 |
 | ERR10 | DELETE фільму 99999 | 404 | 404 |
 | OK8 | DELETE фільму 23, далі GET його коментарів | 204, 404 | 204, 404 (коментарі видалені каскадно) |
+
+## 7. Сеанси фільмів (`api/MovieSession`)
+
+Модель `MovieSession`: `Id`, `MovieId` (зв'язок «один фільм — багато сеансів», FK з каскадним видаленням), `StartsAt`, `HallName`, `Price` (`decimal(10,2)`), `AvailableSeats`. Зв'язок налаштовано в `AppDbContext` через Fluent API. Міграція: `AddMovieSessions`.
+
+Часовий пояс: **усі часи сеансів у UTC**. API приймає `StartsAt` лише з суфіксом `Z` (наприклад `2030-01-15T18:00:00Z`); зсув на кшталт `+02:00` відхиляється. Відповідь завжди містить `Z`. В інтерфейсі час підписано як UTC.
+
+| Метод | Маршрут | Тіло | Відповідь |
+|---|---|---|---|
+| GET | `/MovieSession/sessions?movieId=&date=&maxPrice=` | - | 200 `MovieSessionResponse[]` / 400 |
+| GET | `/MovieSession/sessions/{id}` | - | 200 `MovieSessionResponse` / 404 |
+| POST | `/MovieSession/sessions` | `CreateMovieSessionRequest` | 201 `MovieSessionResponse` / 400 |
+| PUT | `/MovieSession/sessions/{id}` | `UpdateMovieSessionRequest` | 200 `MovieSessionResponse` / 400 / 404 |
+| DELETE | `/MovieSession/sessions/{id}` | - | 204 / 404 |
+
+- GET повертає лише **майбутні** сеанси, відсортовані від найближчого. `date` (`yyyy-MM-dd`, UTC-день) і `maxPrice` є необов'язковими фільтрами.
+- `MovieSessionResponse` містить `MovieTitle` (назву фільму), щоб клієнту не потрібен другий запит.
+- Правила: фільм має існувати (`MovieId`), `HallName` обов'язкова до 50 символів, `Price` і `AvailableSeats` не від'ємні, `Price` не більше 99999999.99. Створити сеанс у минулому не можна. При редагуванні перевіряється час лише тоді, коли він змінився.
+- Видалення фільму з майбутніми сеансами повертає 409 і не видаляє дані. Видалення фільму без майбутніх сеансів каскадно видаляє його минулі сеанси та коментарі.
+
+DTO розділені: `CreateMovieSessionRequest`, `UpdateMovieSessionRequest` і `MovieSessionResponse`. Валідація: `MovieSessionRequestValidator<T>` (спільні правила), `CreateMovieSessionRequestValidator` (додає правило «не в минулому»).
+
+Асинхронність: контролер, сервіс і репозиторій для фільмів, коментарів і сеансів повертають `Task`/`Task<T>` і використовують `ToListAsync`, `FirstOrDefaultAsync`, `AnyAsync`. `SaveChangesAsync` винесено в окремий метод репозиторію, який сервіс викликає після змін. Авторизація (`AuthController`, `UserService`) поки синхронна і не входить до цього етапу.
+
+## 8. Запуск клієнта
+
+```
+cd client
+npm ci
+npm run dev
+```
+
+Відкрити `http://localhost:5173`. Сторінки (хеш-маршрути):
+- `#/afisha`: афіша майбутніх сеансів з фільтрами за датою та максимальною ціною, сортування від найближчого.
+- `#/movies`: список фільмів, додавання і видалення. Назва фільму відкриває `#/movies/{id}`.
+- `#/movies/{id}`: інформація про фільм і його майбутні сеанси.
+- `#/admin`: панель керування сеансами (створення, редагування, видалення). Фільм обирається зі списку, який віддає API.
+
+Приховування кнопок не є захистом API. Рольовий доступ і JWT не реалізовані.

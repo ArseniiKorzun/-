@@ -13,10 +13,10 @@ namespace WebApplication1.Repository
             _context = context;
         }
 
-        public List<MovieComment> GetByMovieId(int movieId) =>
-            _context.MovieComments.Where(c => c.MovieId == movieId).OrderBy(c => c.CreatedAt).ToList();
+        public Task<List<MovieComment>> GetByMovieIdAsync(int movieId) =>
+            _context.MovieComments.Where(c => c.MovieId == movieId).OrderBy(c => c.CreatedAt).ToListAsync();
 
-        public MovieComment GetById(int id) => _context.MovieComments.FirstOrDefault(c => c.Id == id);
+        public Task<MovieComment> GetByIdAsync(int id) => _context.MovieComments.FirstOrDefaultAsync(c => c.Id == id);
 
         public void Add(MovieComment comment) => _context.MovieComments.Add(comment);
 
@@ -24,9 +24,6 @@ namespace WebApplication1.Repository
 
         public void Delete(MovieComment comment) => _context.MovieComments.Remove(comment);
 
-        public void SaveChanges()
-        {
-            _context.SaveChanges();
-        }
+        public Task SaveChangesAsync() => _context.SaveChangesAsync();
     }
 }

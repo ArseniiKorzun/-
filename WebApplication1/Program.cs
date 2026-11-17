@@ -21,12 +21,16 @@ builder.Services.AddTransient<IMovieRepository, MovieRepository>();
 builder.Services.AddTransient<MovieService>();
 builder.Services.AddTransient<IMovieCommentRepository, MovieCommentRepository>();
 builder.Services.AddTransient<MovieCommentService>();
+builder.Services.AddTransient<IMovieSessionRepository, MovieSessionRepository>();
+builder.Services.AddTransient<MovieSessionService>();
 builder.Services.AddScoped<IValidator<UserRegisterContract>, RegisterRequestValidator>();
 builder.Services.AddScoped<IValidator<UserLoginContract>, LoginRequestValidator>();
 builder.Services.AddScoped<IValidator<CreateMovieRequest>, CreateMovieRequestValidator>();
 builder.Services.AddScoped<IValidator<UpdateMovieRequest>, UpdateMovieRequestValidator>();
 builder.Services.AddScoped<IValidator<CreateMovieCommentRequest>, CreateMovieCommentRequestValidator>();
 builder.Services.AddScoped<IValidator<UpdateMovieCommentRequest>, UpdateMovieCommentRequestValidator>();
+builder.Services.AddScoped<IValidator<CreateMovieSessionRequest>, CreateMovieSessionRequestValidator>();
+builder.Services.AddScoped<IValidator<UpdateMovieSessionRequest>, UpdateMovieSessionRequestValidator>();
 
 builder.Services.AddCors(options =>
     options.AddPolicy("ReactClient", policy =>

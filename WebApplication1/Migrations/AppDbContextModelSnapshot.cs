@@ -98,6 +98,41 @@ namespace WebApplication1.Migrations
                     b.ToTable("MovieComments");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.MovieSession", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AvailableSeats")
+                        .HasColumnType("int");
+
+                    b.Property<string>("HallName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("MovieId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime>("StartsAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MovieId");
+
+                    b.HasIndex("StartsAt");
+
+                    b.ToTable("MovieSessions");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -143,9 +178,22 @@ namespace WebApplication1.Migrations
                     b.Navigation("Movie");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.MovieSession", b =>
+                {
+                    b.HasOne("WebApplication1.Models.Movie", "Movie")
+                        .WithMany("Sessions")
+                        .HasForeignKey("MovieId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Movie");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.Movie", b =>
                 {
                     b.Navigation("Comments");
+
+                    b.Navigation("Sessions");
                 });
 #pragma warning restore 612, 618
         }

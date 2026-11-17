@@ -1,65 +1,54 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { api } from '../api.js'
+import { useLoad } from '../useLoad.js'
 import MovieCard from './MovieCard.jsx'
 import AddMovieForm from './AddMovieForm.jsx'
 
-export default function MoviesPage({ user, onLogout }) {
-  const [movies, setMovies] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+export default function MoviesPage() {
+  const movies = useLoad(api.getMovies, [])
   const [showForm, setShowForm] = useState(false)
-
-  useEffect(() => {
-    api.getMovies()
-      .then(setMovies)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
-  }, [])
+  const [notice, setNotice] = useState(null)
 
   const handleAdd = async (data) => {
-    const movie = await api.addMovie(data)
-    setMovies((prev) => [...prev, movie])
+    await api.addMovie(data)
     setShowForm(false)
+    setNotice({ type: 'success', text: 'Film added.' })
+    movies.reload()
   }
 
   const handleRemove = async (id) => {
-    setError(null)
+    setNotice(null)
     try {
       await api.deleteMovie(id)
-      setMovies((prev) => prev.filter((m) => m.id !== id))
+      setNotice({ type: 'success', text: 'Film removed.' })
+      movies.reload()
     } catch (err) {
-      setError(err.message)
+      setNotice({ type: 'error', text: err.message })
     }
   }
 
   return (
-    <div className="movies-page">
-      <header className="movies-header">
-        <div className="header-left">
-          <div className="brand">🎬 Films</div>
-          <button onClick={() => setShowForm(true)}>+ Add Film</button>
-        </div>
-        <div className="user-info">
-          <span className="avatar">{user.name?.[0]?.toUpperCase()}</span>
-          <span>{user.name}</span>
-          <button className="secondary" onClick={onLogout}>Logout</button>
-        </div>
-      </header>
+    <section>
+      <div className="page-toolbar">
+        <h2>Films</h2>
+        <button onClick={() => setShowForm(true)}>+ Add Film</button>
+      </div>
 
       {showForm && <AddMovieForm onSubmit={handleAdd} onCancel={() => setShowForm(false)} />}
-      {error && <p className="message error">{error}</p>}
+      {notice && <p className={`message ${notice.type}`}>{notice.text}</p>}
+      {movies.error && <p className="message error">{movies.error}</p>}
 
-      {loading ? (
+      {movies.loading && !movies.data ? (
         <p>Loading...</p>
-      ) : movies.length === 0 ? (
+      ) : movies.data?.length === 0 ? (
         <p className="empty">No films yet. Click "Add Film" to add the first one.</p>
       ) : (
         <div className="movies-grid">
-          {movies.map((m) => (
+          {movies.data?.map((m) => (
             <MovieCard key={m.id} movie={m} onRemove={() => handleRemove(m.id)} />
           ))}
         </div>
       )}
-    </div>
+    </section>
   )
 }

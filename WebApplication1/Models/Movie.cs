@@ -32,5 +32,7 @@ namespace WebApplication1.Models
         public string MovieUrl { get; set; }
 
         public List<MovieComment> Comments { get; set; } = new();
+
+        public List<MovieSession> Sessions { get; set; } = new();
     }
 }

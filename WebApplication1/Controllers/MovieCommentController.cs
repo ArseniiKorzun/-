@@ -16,61 +16,61 @@ namespace WebApplication1.Controllers
         IMapper _mapper) : ControllerBase
     {
         [HttpGet("movies/{movieId:int}/comments")]
-        public ActionResult<List<MovieCommentResponse>> GetComments(int movieId)
+        public async Task<ActionResult<List<MovieCommentResponse>>> GetComments(int movieId)
         {
-            if (!_commentService.MovieExists(movieId))
+            if (!await _commentService.MovieExistsAsync(movieId))
                 return NotFound($"Movie with id {movieId} not found.");
 
-            var response = _mapper.Map<List<MovieCommentResponse>>(_commentService.GetByMovieId(movieId));
+            var response = _mapper.Map<List<MovieCommentResponse>>(await _commentService.GetByMovieIdAsync(movieId));
             return Ok(response);
         }
 
         [HttpPost("movies/{movieId:int}/comments")]
-        public ActionResult<MovieCommentResponse> AddComment(int movieId, [FromBody] CreateMovieCommentRequest request)
+        public async Task<ActionResult<MovieCommentResponse>> AddComment(int movieId, [FromBody] CreateMovieCommentRequest request)
         {
             var validationResult = _createValidator.Validate(request);
             if (!validationResult.IsValid)
                 return ValidationProblem(new ValidationProblemDetails(validationResult.ToDictionary()));
 
-            if (!_commentService.MovieExists(movieId))
+            if (!await _commentService.MovieExistsAsync(movieId))
                 return NotFound($"Movie with id {movieId} not found.");
 
             var comment = _mapper.Map<MovieComment>(request);
             comment.MovieId = movieId;
-            _commentService.Add(comment);
+            await _commentService.AddAsync(comment);
             return CreatedAtAction(nameof(GetComments), new { movieId }, _mapper.Map<MovieCommentResponse>(comment));
         }
 
         [HttpPut("movies/{movieId:int}/comments/{id:int}")]
-        public ActionResult<MovieCommentResponse> UpdateComment(int movieId, int id, [FromBody] UpdateMovieCommentRequest request)
+        public async Task<ActionResult<MovieCommentResponse>> UpdateComment(int movieId, int id, [FromBody] UpdateMovieCommentRequest request)
         {
             var validationResult = _updateValidator.Validate(request);
             if (!validationResult.IsValid)
                 return ValidationProblem(new ValidationProblemDetails(validationResult.ToDictionary()));
 
-            var comment = FindComment(movieId, id);
+            var comment = await FindComment(movieId, id);
             if (comment == null)
                 return NotFound($"Comment with id {id} not found for movie {movieId}.");
 
             _mapper.Map(request, comment);
-            _commentService.Update(comment);
+            await _commentService.UpdateAsync(comment);
             return Ok(_mapper.Map<MovieCommentResponse>(comment));
         }
 
         [HttpDelete("movies/{movieId:int}/comments/{id:int}")]
-        public ActionResult DeleteComment(int movieId, int id)
+        public async Task<ActionResult> DeleteComment(int movieId, int id)
         {
-            var comment = FindComment(movieId, id);
+            var comment = await FindComment(movieId, id);
             if (comment == null)
                 return NotFound($"Comment with id {id} not found for movie {movieId}.");
 
-            _commentService.Delete(comment);
+            await _commentService.DeleteAsync(comment);
             return NoContent();
         }
 
-        private MovieComment FindComment(int movieId, int id)
+        private async Task<MovieComment> FindComment(int movieId, int id)
         {
-            var comment = _commentService.GetById(id);
+            var comment = await _commentService.GetByIdAsync(id);
             return comment != null && comment.MovieId == movieId ? comment : null;
         }
     }

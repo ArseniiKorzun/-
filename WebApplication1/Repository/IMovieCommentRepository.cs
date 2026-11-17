@@ -4,11 +4,11 @@ namespace WebApplication1.Repository
 {
     public interface IMovieCommentRepository
     {
-        List<MovieComment> GetByMovieId(int movieId);
-        MovieComment GetById(int id);
+        Task<List<MovieComment>> GetByMovieIdAsync(int movieId);
+        Task<MovieComment> GetByIdAsync(int id);
         void Add(MovieComment comment);
         void Update(MovieComment comment);
         void Delete(MovieComment comment);
-        void SaveChanges();
+        Task SaveChangesAsync();
     }
 }
